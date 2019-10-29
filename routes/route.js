@@ -12,14 +12,27 @@ router.get('/', (req, res) => {
 });
 
 router.get('/:id', (req, res) => {
-   const { id } = req.params;
-   db.findById(id).then(post => {
-      if (post.length > 0) {
+   db.findById(req.params.id)
+      .then(post => {
          res.status(200).json(post);
-      } else {
-         res.status(404).json({ error: 'post does not exists' });
-      }
-   });
+      })
+      .catch(error => {
+         console.log(error);
+         res.status(500).json({
+            message: 'Error retrieving post'
+         });
+      });
+});
+
+router.get('/:id/comments', (req, res) => {
+   const { id } = req.params;
+   db.findPostComments(id)
+      .then(comment => {
+         res.status(200).json(comment);
+      })
+      .catch(err => {
+         res.status(500).json({ error: 'Error finding post comment' });
+      });
 });
 
 router.post('/', (req, res) => {
@@ -62,17 +75,6 @@ router.delete('/:id', (req, res) => {
       })
       .catch(err => {
          res.status(500).json({ error: 'Could not delete post' });
-      });
-});
-
-router.get('/:id/comments', (req, res) => {
-   const { id } = req.params;
-   db.findPostComments(id)
-      .then(comment => {
-         res.status(200).json(comment);
-      })
-      .catch(err => {
-         res.status(500).json({ error: 'Error finding post comment' });
       });
 });
 
